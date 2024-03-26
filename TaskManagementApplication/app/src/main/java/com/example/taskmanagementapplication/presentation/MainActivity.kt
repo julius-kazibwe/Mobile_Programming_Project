@@ -31,6 +31,7 @@ import com.example.taskmanagementapplication.ui.theme.MainBackground
 import com.example.taskmanagementapplication.ui.theme.TodoListAppTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
 
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         getCurrentLocation()
