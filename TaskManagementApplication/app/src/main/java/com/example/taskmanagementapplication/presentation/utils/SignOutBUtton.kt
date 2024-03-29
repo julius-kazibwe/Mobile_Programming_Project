@@ -9,17 +9,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.taskmanagementapplication.ui.theme.*
-import com.facebook.login.LoginManager
+import com.example.taskmanagementapplication.presentation.screens.signin.GoogleAuthUiClient
+import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignOutButton(navController: NavController) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    val googleAuthUiClient by remember {
+        mutableStateOf(
+            GoogleAuthUiClient(
+                context = context,
+                oneTapClient = Identity.getSignInClient(context)
+            )
+        )
+    }
     var showDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize(),
@@ -66,8 +80,10 @@ fun SignOutButton(navController: NavController) {
                         .padding(10.dp)
                         .clickable(onClick = {
                             showDialog = false
-                            Firebase.auth.signOut()
-                            LoginManager.getInstance().logOut()
+                            coroutineScope.launch {
+                                googleAuthUiClient.signOut()
+                            }
+
                             navController.navigate("signin_screen")
                         }),
                     text = "Sign Out",
