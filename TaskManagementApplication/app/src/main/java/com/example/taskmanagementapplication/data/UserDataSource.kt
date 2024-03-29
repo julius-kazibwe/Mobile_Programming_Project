@@ -1,6 +1,5 @@
 package com.example.taskmanagementapplication.data
 
-import com.facebook.AccessToken
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -11,7 +10,7 @@ object UserDataSource {
     }
 
     fun getUserPicture() : String {
-        return "${Firebase.auth.currentUser?.photoUrl}?access_token=${AccessToken.getCurrentAccessToken()?.token}"
+        return Firebase.auth.currentUser?.photoUrl.toString()
     }
 
 }

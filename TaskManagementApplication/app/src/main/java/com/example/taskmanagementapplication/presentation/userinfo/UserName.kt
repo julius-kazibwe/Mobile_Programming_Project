@@ -7,7 +7,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import com.example.taskmanagementapplication.presentation.userinfo.UserViewModel
 import com.example.taskmanagementapplication.ui.theme.DarkGray
 import com.example.taskmanagementapplication.ui.theme.interBold
 import com.example.taskmanagementapplication.ui.theme.interLight

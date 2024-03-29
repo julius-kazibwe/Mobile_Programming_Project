@@ -1,18 +1,33 @@
 package com.example.taskmanagementapplication.presentation.navigations
 
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.android.gms.auth.api.identity.Identity
+import androidx.lifecycle.lifecycleScope
 import com.example.taskmanagementapplication.presentation.screens.addedittask.AddEditTaskScreen
 import com.example.taskmanagementapplication.presentation.screens.addedittask.AddEditTaskViewModel
 import com.example.taskmanagementapplication.presentation.screens.calendar.CalendarScreen
@@ -21,8 +36,11 @@ import com.example.taskmanagementapplication.presentation.screens.home.HomeScree
 import com.example.taskmanagementapplication.presentation.screens.home.HomeViewModel
 import com.example.taskmanagementapplication.presentation.screens.splash.SplashScreen
 import com.example.taskmanagementapplication.presentation.screens.signin.SignInScreen
+import com.example.taskmanagementapplication.presentation.screens.signin.SignInViewModel
+import com.example.taskmanagementapplication.presentation.screens.signin.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
 
 @SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.N)
@@ -34,13 +52,73 @@ fun Navigation(
     calendarViewModel: CalendarViewModel,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
+    val context = LocalContext.current
+
+    val googleAuthUiClient by remember {
+        mutableStateOf(
+            GoogleAuthUiClient(
+                context = context,
+                oneTapClient = Identity.getSignInClient(context)
+            )
+        )
+    }
 
     NavHost(navController = navigationController, startDestination = NavScreen.SplashScreen.route){
         composable(route = NavScreen.SplashScreen.route){
             SplashScreen(navigationController)
         }
         composable(route = NavScreen.SignInScreen.route){
-            SignInScreen(navigationController)
+            
+                val viewModel = viewModel<SignInViewModel>()
+                val state by viewModel.state.collectAsState()
+
+                LaunchedEffect(key1 = Unit) {
+                    if(googleAuthUiClient.getSignedInUser() != null) {
+                        navigationController.navigate("home_screen")
+                    }
+                }
+
+                val launcher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartIntentSenderForResult(),
+                    onResult = { result ->
+                        if(result.resultCode == RESULT_OK) {
+                            coroutineScope.launch {
+                                val signInResult = googleAuthUiClient.signInWithIntent(
+                                    intent = result.data ?: return@launch
+                                )
+                                viewModel.onSignInResult(signInResult)
+                            }
+                        }
+                    }
+                )
+
+                LaunchedEffect(key1 = state.isSignInSuccessful) {
+                    if(state.isSignInSuccessful) {
+                        Toast.makeText(
+                            context,
+                            "Sign in successful",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        navigationController.navigate("home_screen")
+                        viewModel.resetState()
+                    }
+                }
+
+                SignInScreen(
+                    state = state,
+                    onSignInClick = {
+                        coroutineScope.launch {
+                            val signInIntentSender = googleAuthUiClient.signIn()
+                            launcher.launch(
+                                IntentSenderRequest.Builder(
+                                    signInIntentSender ?: return@launch
+                                ).build()
+                            )
+                        }
+                    }
+                )
+
         }
         composable(route = NavScreen.HomeScreen.route){
             val scaffoldState : ScaffoldState = rememberScaffoldState()

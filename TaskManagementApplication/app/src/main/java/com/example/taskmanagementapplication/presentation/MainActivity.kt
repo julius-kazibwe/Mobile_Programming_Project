@@ -28,10 +28,9 @@ import com.example.taskmanagementapplication.presentation.screens.addedittask.Ad
 import com.example.taskmanagementapplication.presentation.screens.calendar.CalendarViewModel
 import com.example.taskmanagementapplication.presentation.screens.home.HomeViewModel
 import com.example.taskmanagementapplication.ui.theme.MainBackground
-import com.example.taskmanagementapplication.ui.theme.TodoListAppTheme
+import com.example.taskmanagementapplication.ui.theme.TaskManagementApplicationTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
 
@@ -43,14 +42,14 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
+
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         getCurrentLocation()
 
         setContent {
 
-            var addEditTaskViewModel = viewModel(modelClass = AddEditTaskViewModel::class.java)
+            val addEditTaskViewModel = viewModel(modelClass = AddEditTaskViewModel::class.java)
             val homeViewModel = viewModel(modelClass = HomeViewModel::class.java)
             val calendarViewModel = viewModel(modelClass = CalendarViewModel::class.java)
 
@@ -62,7 +61,7 @@ class MainActivity : ComponentActivity() {
                 homeViewModel.getUserLocation(lat.value, long.value)
             }
 
-            TodoListAppTheme {
+            TaskManagementApplicationTheme {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()

@@ -1,9 +1,7 @@
 <resources>
-    <string name="app_name">TaskManagementApplication</string>
+    <string name="app_name">TaskHub</string>
     <string name="app_description">Say goodbye to chaos and hello to productivity with this app</string>
     <string name="title_activity_home">HomeActivity</string>
 
-    <string name="facebook_app_id">523582266298906</string>
-    <string name="fb_login_protocol_scheme">fb523582266298906</string>
-    <string name="facebook_client_token">03c7f0b35f265680618a1bf7eb57abc5</string>
+    <string name="web_client_id">1090187886288-hqjbej7icsdgmds1jj21mb6eh9q0m80j.apps.googleusercontent.com</string>
 </resources>

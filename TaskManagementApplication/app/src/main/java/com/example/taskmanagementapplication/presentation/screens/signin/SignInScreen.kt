@@ -11,7 +11,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -26,23 +25,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
 import com.example.taskmanagementapplication.R
 import com.example.taskmanagementapplication.ui.theme.*
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 @Composable
-fun SignInScreen(navController: NavController) {
+fun SignInScreen(state: SignInState, onSignInClick: () -> Unit) {
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -68,7 +55,9 @@ fun SignInScreen(navController: NavController) {
         }
     }
 
-    SignInFacebookButton(navController)
+
+    SignInWithGoogleButton(state, onSignInClick)
+
 }
 
 @Composable
@@ -111,7 +100,7 @@ fun AppTitle() {
                 fontSize = 28.sp
             )
             ) {
-                append("\nTodo List")
+                append("\nTaskHub")
             }
         },
         fontWeight = FontWeight.Light,
@@ -122,10 +111,20 @@ fun AppTitle() {
 }
 
 @Composable
-fun SignInFacebookButton(navController: NavController) {
-
+fun SignInWithGoogleButton(
+    state: SignInState,
+    onSignInClick: () -> Unit
+) {
     val context = LocalContext.current
-
+    LaunchedEffect(key1 = state.signInError) {
+        state.signInError?.let { error ->
+            Toast.makeText(
+                context,
+                error,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
     Column(modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom) {
@@ -143,67 +142,20 @@ fun SignInFacebookButton(navController: NavController) {
                     backgroundColor = Color.White,
                     contentColor = DarkGray
                 ),
-                onClick = {}) {
+                onClick = onSignInClick) {
 
-                Text(text = "Continue with Facebook", fontFamily = interMedium)
+                Text(text = "Continue with Google", fontFamily = interMedium)
             }
 
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp));
 
-            FacebookAuthentication(
-                onSignInFailed = {
-                    Toast.makeText(context, "Sign In Unsuccessful", Toast.LENGTH_SHORT).show()
-                },
-                onSignedIn = {
-                    Toast.makeText(context, "Sign In Successful", Toast.LENGTH_SHORT).show()
-                    navController.navigate("home_screen")
-                })
         }
     }
+
 }
 
-@Composable
-fun FacebookAuthentication(
-    onSignInFailed : (Exception) -> Unit,
-    onSignedIn : () -> Unit
-) {
-
-    val scope = rememberCoroutineScope()
-
-    AndroidView({ context ->
-        LoginButton(context).apply {
-            val callbackManager = CallbackManager.Factory.create()
-            setPermissions("email", "public_profile")
-            registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
-                override fun onCancel() {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onError(error: FacebookException) {
-                    onSignInFailed(error)
-                }
-                override fun onSuccess(result: LoginResult) {
-                    scope.launch {
-                        val token = result.accessToken.token
-                        val credential = FacebookAuthProvider.getCredential(token)
-                        val authResult = Firebase.auth.signInWithCredential(credential).await()
-                        if(authResult.user != null){
-                            onSignedIn()
-                        } else {
-                            onSignInFailed(RuntimeException("Could not sign in with firebase"))
-                        }
-                    }
-                }
-            })
-        }
-    },
-        Modifier
-            .alpha(0.0f)
-            .width(300.dp)
-            .height(50.dp))
-}
 
 @Composable
 fun VectorArt() {
