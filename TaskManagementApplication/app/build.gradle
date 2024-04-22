@@ -7,13 +7,23 @@ plugins {
 }
 
 android {
-    namespace 'com.example.taskmanagementapplication'
+    signingConfigs {
+        debug {
+            storeFile file('/home/julio/Mobile_Programming_Project/keystore/keyStore.jks')
+            storePassword 'l12BD143'
+            keyAlias 'key0'
+            keyPassword 'l12BD143'
+        }
+    }
+    namespace 'com.mmproject.taskmanagementapplication'
+    //noinspection GradleDependency
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.taskmanagementapplication"
+        applicationId "com.mmproject.taskmanagementapplication"
         minSdk 26
-        targetSdk 32
+        //noinspection OldTargetApi
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -104,6 +114,10 @@ dependencies {
 
     //swipeable
     implementation "me.saket.swipe:swipe:1.0.0"
+
+    implementation "androidx.work:work-runtime-ktx:2.7.0"
+
+    implementation 'com.google.code.gson:gson:2.8.8'
 
     //markdown
     //implementation 'io.coil-kt:coil:0.9.5'
