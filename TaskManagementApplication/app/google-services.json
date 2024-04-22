@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "1090187886288",
-    "project_id": "taskapplication-6e101",
-    "storage_bucket": "taskapplication-6e101.appspot.com"
+    "project_number": "8539742505",
+    "project_id": "taskshub-7ded4",
+    "storage_bucket": "taskshub-7ded4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1090187886288:android:4d482a95df500e1cade8d5",
+        "mobilesdk_app_id": "1:8539742505:android:44bf738e8693e43b3a9738",
         "android_client_info": {
-          "package_name": "com.example.taskmanagementapplication"
+          "package_name": "com.mmproject.taskmanagementapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1090187886288-ddo9mbn6764j34q9kj1ohldj9beli32l.apps.googleusercontent.com",
+          "client_id": "8539742505-s5cvnf731eh8kk2umt6k2obusgk1adln.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.taskmanagementapplication",
-            "certificate_hash": "7a8ad50d45cfbd90e941bb73f6efca12456b038d"
+            "package_name": "com.mmproject.taskmanagementapplication",
+            "certificate_hash": "47f3f064fc215733a9b7f7db5d942daa635420f4"
           }
         },
         {
-          "client_id": "1090187886288-hqjbej7icsdgmds1jj21mb6eh9q0m80j.apps.googleusercontent.com",
+          "client_id": "8539742505-uj79er9c972h2qjkp17uh9rsms7jrc7u.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCF4OfI0Qo0IghIxnONjB2rv70o0zu7icQ"
+          "current_key": "AIzaSyA8uRfAY_jIZvU2mNsebmY72j6y_WHrmZk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1090187886288-hqjbej7icsdgmds1jj21mb6eh9q0m80j.apps.googleusercontent.com",
+              "client_id": "8539742505-tjh5vcsrq487e4i68dkjoqu275ucn4aq.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
