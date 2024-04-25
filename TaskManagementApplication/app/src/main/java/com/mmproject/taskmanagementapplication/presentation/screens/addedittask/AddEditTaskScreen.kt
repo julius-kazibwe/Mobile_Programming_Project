@@ -114,7 +114,9 @@ fun AddEditTaskScreen(
             onViewChange = addEditTaskViewModel::updateDescriptionView,
             onAddSubtask = ::handleAddSubtask,
             subtasks = addEditTaskUiState.subtasks,
-            addEditTaskViewModel = addEditTaskViewModel
+            addEditTaskViewModel = addEditTaskViewModel,
+            onTaskReminderDateChange = addEditTaskViewModel::updateReminderDate,
+            taskReminderDate = addEditTaskUiState.reminderDate
         )
     }
 }
@@ -135,6 +137,8 @@ fun AddEditTaskContent(
     subtasks: List<Subtask>,
     onAddSubtask: (String, Boolean, Boolean) -> Unit,
     addEditTaskViewModel: AddEditTaskViewModel,
+    onTaskReminderDateChange: (String) -> Unit,
+    taskReminderDate: String
 
 ) {
 
@@ -165,6 +169,11 @@ fun AddEditTaskContent(
         InputTaskDueDate(
             taskDueDate = taskDueDate,
             onTaskDueDateChange = onTaskDueDateChange,
+            onEditTask = onEditTask
+        )
+        InputReminderDate(
+            reminderDate = taskReminderDate,
+            onTaskReminderDateChange = onTaskReminderDateChange,
             onEditTask = onEditTask
         )
 
@@ -286,25 +295,8 @@ fun InputTaskDueDate(
             var m = (month + 1).toString().padStart(2, '0')
             var d = dayOfMonth.toString().padStart(2, '0')
 
-            selectedDate.value = "$y-$m-$d" // Store selected date
-
+            onTaskDueDateChange("$y-$m-$d")
         }, year, month, day
-    )
-
-    val timePickerDialog = TimePickerDialog(
-        context,
-        { _, hourOfDay: Int, minute: Int ->
-            var h = hourOfDay.toString().padStart(2, '0')
-            var min = minute.toString().padStart(2, '0')
-
-            val selectedTime = "$h:$min"
-            val updatedDueDate = "${selectedDate.value} at $selectedTime" // Combine date and time
-            onTaskDueDateChange(updatedDueDate)
-            setNotificationForReminder(context, updatedDueDate)
-        },
-        hour,
-        minute,
-        true
     )
 
     Row(modifier = Modifier
@@ -326,17 +318,102 @@ fun InputTaskDueDate(
                 .clickable(
                     onClick = {
                         if (onEditTask) {
-                            if (taskDueDate == "No due date") {
-                                datePickerDialog.show()
-                                datePickerDialog.setOnDismissListener {
-                                    timePickerDialog.show()
-                                }
-                            } else onTaskDueDateChange("No due date")
+                            if (taskDueDate == "No due date") datePickerDialog.show()
+                            else onTaskDueDateChange("No due date")
                         }
                     }),
             painter = painterResource(
                 id = if (taskDueDate != "No due date" && onEditTask) R.drawable.cancel
                      else R.drawable.calendar
+            ),
+            contentDescription = null
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+@Composable
+fun InputReminderDate(
+    reminderDate: String,
+    onTaskReminderDateChange: (String) -> Unit,
+    onEditTask: Boolean
+) {
+    val context = LocalContext.current
+    val selectedDate = remember { mutableStateOf("") }
+
+    val year : Int
+    val month : Int
+    val day : Int
+    val hour: Int
+    val minute: Int
+
+    val calendar = Calendar.getInstance()
+    year = calendar.get(Calendar.YEAR)
+    month = calendar.get(Calendar.MONTH)
+    day = calendar.get(Calendar.DAY_OF_MONTH)
+    hour = calendar.get(Calendar.HOUR_OF_DAY)
+    minute = calendar.get(Calendar.MINUTE)
+
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, year : Int, month : Int, dayOfMonth : Int ->
+
+            var y = year.toString()
+            var m = (month + 1).toString().padStart(2, '0')
+            var d = dayOfMonth.toString().padStart(2, '0')
+
+            selectedDate.value = "$y-$m-$d"
+        }, year, month, day
+    )
+
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, hourOfDay: Int, minute: Int ->
+            var h = hourOfDay.toString().padStart(2, '0')
+            var min = minute.toString().padStart(2, '0')
+
+            val selectedTime = "$h:$min"
+            val updatedDueDate = "${selectedDate.value} at $selectedTime" // Combine date and time
+            onTaskReminderDateChange(updatedDueDate)
+            setNotificationForReminder(context, updatedDueDate)
+        },
+        hour,
+        minute,
+        true
+    )
+
+
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(50.dp)
+        .padding(PaddingValues(start = 1.dp)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+
+        Text(text = if(reminderDate != "Set reminder") "Reminder on $reminderDate" else "Set reminder",
+            color = Color.DarkGray,
+            modifier = Modifier
+                .padding(PaddingValues(start = 15.dp)))
+
+        Image(
+            modifier = Modifier
+                .alpha(0.7f)
+                .padding(PaddingValues(end = 15.dp))
+                .clickable(
+                    onClick = {
+                        if (onEditTask) {
+                            if (reminderDate == "Set reminder") {
+                                datePickerDialog.show()
+                                datePickerDialog.setOnDismissListener {
+                                    timePickerDialog.show()
+                                }
+                            } else onTaskReminderDateChange("Set reminder")
+                        }
+                    }),
+            painter = painterResource(
+                id = if (reminderDate != "Set reminder" && onEditTask) R.drawable.cancel
+                else R.drawable.bell
             ),
             contentDescription = null
         )
@@ -392,10 +469,10 @@ fun SubtasksRow(onAddSubtask: (String, Boolean, Boolean) -> Unit, onEditTask: Bo
     }
 }
 @RequiresApi(Build.VERSION_CODES.O)
-fun setNotificationForReminder(context: Context, dueDateTime: String) {
+fun setNotificationForReminder(context: Context, reminderDate: String) {
     // Parse dueDateTime
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm")
-    val dateTime = LocalDateTime.parse(dueDateTime, formatter)
+    val dateTime = LocalDateTime.parse(reminderDate, formatter)
 
     // Get current time
     val currentTime = LocalDateTime.now()
@@ -403,7 +480,7 @@ fun setNotificationForReminder(context: Context, dueDateTime: String) {
     // Calculate time difference
     val diff = Duration.between(currentTime, dateTime).toMillis()
 
-    // Set notification if the due time is in the future
+    // Set notification if the reminder time is in the future
     if (diff > 0) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, Notification::class.java)
