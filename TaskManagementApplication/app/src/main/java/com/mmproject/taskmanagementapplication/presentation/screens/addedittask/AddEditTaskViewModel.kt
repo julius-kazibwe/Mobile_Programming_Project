@@ -17,7 +17,8 @@ data class AddEditTaskUiState(
     val isTaskSaved: Boolean = false,
     val onEditTask: Boolean = false,
     val viewAsMarkdown: Boolean = false,
-    val subtasks: List<Subtask> = emptyList()
+    val subtasks: List<Subtask> = emptyList(),
+    val reminderDate: String = "Set reminder"
 )
 
 class AddEditTaskViewModel : ViewModel() {
@@ -83,6 +84,9 @@ class AddEditTaskViewModel : ViewModel() {
     fun updateDueDate(newDate: String) {
         addEditTaskUiState = addEditTaskUiState.copy(taskDueDate = newDate)
     }
+    fun updateReminderDate(newReminderDate: String) {
+        addEditTaskUiState = addEditTaskUiState.copy(reminderDate = newReminderDate)
+    }
 
     fun updateTaskId(taskId: String) {
         addEditTaskUiState = addEditTaskUiState.copy(taskId = taskId)
@@ -97,9 +101,11 @@ class AddEditTaskViewModel : ViewModel() {
             addEditTaskUiState.taskName,
             addEditTaskUiState.taskDescription,
             addEditTaskUiState.taskDueDate,
+            addEditTaskUiState.reminderDate,
             addEditTaskUiState.isTaskFinished,
             addEditTaskUiState.taskId,
             addEditTaskUiState.subtasks
+
         )
     }
 
@@ -121,10 +127,11 @@ class AddEditTaskViewModel : ViewModel() {
                     it.taskIsFinished?.let { it1 -> addEditTaskUiState.copy(isTaskFinished = it1) }!!
                 addEditTaskUiState =
                     it.subtasks?.let { it1 -> addEditTaskUiState.copy(subtasks = it1) }!!
+                addEditTaskUiState =
+                    it.reminderDate?.let { it1 -> addEditTaskUiState.copy(reminderDate = it1) }!!
             }
         }
     }
-
     fun resetState() {
         addEditTaskUiState = AddEditTaskUiState()
     }

@@ -53,6 +53,7 @@ object TaskDataSource {
         taskName: String,
         taskDesc: String,
         taskDueDate: String,
+        reminderDate: String,
         taskIsFinished: Boolean,
         taskId: String,
         subtasks: List<Subtask>,
@@ -61,9 +62,10 @@ object TaskDataSource {
             taskName = taskName,
             taskDescription = taskDesc,
             taskDueDate = taskDueDate,
+            reminderDate = reminderDate,
             taskIsFinished = taskIsFinished,
             taskID = if(taskId == "") generateTaskID() else taskId,
-            subtasks = subtasks
+            subtasks = subtasks,
         )
 
         task.taskID?.let {
